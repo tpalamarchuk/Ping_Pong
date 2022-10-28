@@ -1,8 +1,7 @@
-#ping_pong
 from pygame import * 
 
 class GameSprite(sprite.Sprite):
-    def __init__(self, filename, speed, x, y, wh_):
+    def __init__(self, filename, speedx, speedy, x, y, wh_):
         super().__init__()
         self.image = image.load(filename)
         self.wh_ = wh_
@@ -11,7 +10,8 @@ class GameSprite(sprite.Sprite):
             self.wh_
             )
         self.rect = self.image.get_rect()
-        self.speed = speed
+        self.speedx = speedx
+        self.speedy = speedy
         self.rect.x = x
         self.rect.y = y
 
@@ -25,19 +25,19 @@ class Player(GameSprite):
         keys_pressed = key.get_pressed()
         
         if keys_pressed[K_s] and self.rect.y < 500:
-            self.rect.y += self.speed
+            self.rect.y += self.speedy
 
         if keys_pressed[K_w] and self.rect.y > 0:
-            self.rect.y -= self.speed
+            self.rect.y -= self.speedy
     
     def update2(self):
         keys_pressed = key.get_pressed()
         
         if keys_pressed[K_DOWN] and self.rect.y < 500:
-            self.rect.y += self.speed
+            self.rect.y += self.speedy
 
         if keys_pressed[K_UP] and self.rect.y > 0:
-            self.rect.y -= self.speed
+            self.rect.y -= self.speedy
 
 window = display.set_mode((1200, 700))
 display.set_caption('PingPong')
@@ -51,14 +51,16 @@ mixer.init()
 mixer.music.load('fon_music.ogg')
 mixer.music.play()
 mixer.music.set_volume(0.008) 
+cick = mixer.Sound('ball_sound.ogg')
+
 
 font.init()
 font = font.Font(None, 45)
 
-platform1 = Player('platform.png', 15, 0, 150, (50, 200))
-platform2 = Player('platform2.png', 15, 1150, 150, (50, 200))
+platform1 = Player('platform.png', 15, 15, 0, 150, (50, 200))
+platform2 = Player('platform2.png', 15, 15, 1150, 150, (50, 200))
 
-ball = GameSprite('ball.png', 20, 575, 325, (25, 25))
+ball = GameSprite('ball.png', 10, 10, 575, 325, (25, 25))
 
 clock = time.Clock()
 FPS = 30
@@ -77,6 +79,18 @@ while game:
     platform1.reset()
     platform2.update2()
     platform2.reset()
+
+    ball.rect.x += ball.speedx
+    ball.rect.y += ball.speedy
+
+    if ball.rect.y > 675 or ball.rect.y < 0:
+        ball.speedy *= -1
+        cick.play()
+
+    if sprite.collide_rect(platform1, ball) or sprite.collide_rect(platform2, ball):
+        ball.speedx *= -1
+        cick.play()
+
 
     ball.reset()
 
