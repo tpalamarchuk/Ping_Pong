@@ -1,4 +1,5 @@
 from pygame import *
+import time as t
 
 def restart_pos_ball():
     ball.rect.x = 575
@@ -44,7 +45,6 @@ class Player(GameSprite):
         if keys_pressed[K_UP] and self.rect.y > 0:
             self.rect.y -= self.speedy
 
-
 window = display.set_mode((1200, 700))
 display.set_caption('PingPong')
 
@@ -60,26 +60,53 @@ mixer.music.set_volume(0.008)
 cick = mixer.Sound('ball_sound.ogg')
 
 font.init()
-font = font.Font(None, 45)
+font = font.Font(None, 40)
 
-platform1 = Player('platform.png', 15, 15, 0, 150, (50, 200))
-platform2 = Player('platform2.png', 15, 15, 1150, 150, (50, 200))
+platform1 = Player('platform.png', None, 10, 0, 150, (50, 200))
+platform2 = Player('platform2.png', None, 10, 1150, 150, (50, 200))
 
-ball = GameSprite('ball.png', 10, 10, 575, 325, (25, 25))
+ball = GameSprite('ball.png', 6, 6, 575, 325, (25, 25))
 
 score_p1 = 0
 score_p2 = 0
 clock = time.Clock()
-FPS = 30
+FPS = 45
 finish = True
 game = True
+FirstTime = t.time()
+
+
+
+
 while game:
+    SecondTime = t.time()
+    Timer_s = SecondTime // 1 - FirstTime // 1
     for e in event.get():
+
         if e.type == QUIT:
             game = False
+
     if finish:
         window.blit(
             background, (0, 0)
+        )
+        player1 = font.render(
+            'Рахунок:' + str(score_p1), True, (255, 255, 255)
+        )
+        player2 = font.render(
+            'Рахунок:' + str(score_p2), True, (255, 255, 255)
+        )
+        player1win = font.render(
+            'Гравець1 виграв з рахунком ' + str(score_p2) + '-' + str(score_p1), True, (255, 255, 255)
+        )
+        player2win = font.render(
+            'Гравець2 виграв з рахунком ' + str(score_p1) + '-' + str(score_p2), True, (255, 255, 255)
+        )
+        nobodywin = font.render(
+            'Час закінчився', True, (255, 255, 255)
+        )
+        timer1 = font.render(
+            str(Timer_s), True, (255, 255, 255)
         )
 
         platform1.update1()
@@ -89,6 +116,7 @@ while game:
 
         ball.rect.x += ball.speedx
         ball.rect.y += ball.speedy
+
 
         if ball.rect.y > 675 or ball.rect.y < 0:
             ball.speedy *= -1
@@ -107,12 +135,44 @@ while game:
             restart_pos_ball()
 
         if score_p1 == 3:
-            print('p1 win')
+            window.blit(
+                player2win, (365, 300)
+            )
             finish = False
 
         if score_p2 == 3:
-            print('p2 win')
+            window.blit(
+                player2win, (365, 300)
+            )
             finish = False
+
+        if Timer_s >= 10:
+            if score_p1 > score_p2:
+                window.blit(
+                    player2win, (365, 300)
+                )
+                finish = False
+            elif score_p1 < score_p2:
+                window.blit(
+                    player2win, (365, 300)
+                )
+                finish = False
+            else:
+                window.blit(
+                    nobodywin, (500, 300)
+                )
+                finish = False
+
+        window.blit(
+            player1, (20, 20)
+        )
+        window.blit(
+            player2, (1050, 20)
+        )
+
+        window.blit(
+            timer1, (550, 20)
+        )
 
     ball.reset()
 
