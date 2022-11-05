@@ -45,6 +45,29 @@ class Player(GameSprite):
         if keys_pressed[K_UP] and self.rect.y > 0:
             self.rect.y -= self.speedy
 
+class Button(sprite.Sprite):
+    def __init__(self, filename, x, y, wh_):
+        super().__init__()
+        self.image = image.load(filename)
+        self.wh_ = wh_
+        self.image = transform.scale(
+            self.image,
+            self.wh_
+        )
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def reset(self):
+        window.blit(self.image,
+                    (self.rect.x, self.rect.y)
+                    )
+
+    def collidepoint(self, x, y):
+        return self.rect.collidepoint(x, y)
+
+
+
 window = display.set_mode((1200, 700))
 display.set_caption('PingPong')
 
@@ -67,29 +90,47 @@ platform2 = Player('platform2.png', None, 10, 1150, 150, (50, 200))
 
 ball = GameSprite('ball.png', 6, 6, 575, 325, (25, 25))
 
+button_play = Button('button_play.png', 460, 240, (250, 130))
+button_exit = Button('button_exit.png', 460, 360, (250, 130))
+
 score_p1 = 0
 score_p2 = 0
 clock = time.Clock()
 FPS = 45
-finish = True
+finish = False
 game = True
 FirstTime = t.time()
-
-
-
-
 while game:
-    SecondTime = t.time()
-    Timer_s = SecondTime // 1 - FirstTime // 1
-    for e in event.get():
 
+
+    for e in event.get():
+        if e.type == MOUSEBUTTONDOWN and e.button == 1:
+            x, y = e.pos
+            if button_play.collidepoint(x, y):
+                finish = True
+            if button_exit.collidepoint(x, y):
+                game = False
         if e.type == QUIT:
             game = False
+        if e.type == KEYDOWN:
+            if e.key == K_ESCAPE:
+                if finish == True:
+                    finish = False
+                else:
+                    finish = True
+                    FirstTime = t.time()
+                    Timer_s = 0
+                    score_p1 = 0
+                    score_p2 = 0
+
 
     if finish:
         window.blit(
             background, (0, 0)
         )
+        SecondTime = t.time()
+        Timer_s = SecondTime // 1 - FirstTime // 1
+
         player1 = font.render(
             'Рахунок:' + str(score_p1), True, (255, 255, 255)
         )
@@ -113,6 +154,7 @@ while game:
         platform1.reset()
         platform2.update2()
         platform2.reset()
+        ball.reset()
 
         ball.rect.x += ball.speedx
         ball.rect.y += ball.speedy
@@ -135,31 +177,33 @@ while game:
             restart_pos_ball()
 
         if score_p1 == 3:
+            t.sleep(1)
             window.blit(
-                player2win, (365, 300)
+                player2win, (365, 50)
             )
             finish = False
 
         if score_p2 == 3:
+            t.sleep(1)
             window.blit(
-                player2win, (365, 300)
+                player2win, (365, 50)
             )
             finish = False
 
-        if Timer_s >= 10:
+        if Timer_s >= 60:
             if score_p1 > score_p2:
                 window.blit(
-                    player2win, (365, 300)
+                    player2win, (365, 50)
                 )
                 finish = False
             elif score_p1 < score_p2:
                 window.blit(
-                    player2win, (365, 300)
+                    player2win, (365, 50)
                 )
                 finish = False
             else:
                 window.blit(
-                    nobodywin, (500, 300)
+                    nobodywin, (500, 50)
                 )
                 finish = False
 
@@ -173,8 +217,11 @@ while game:
         window.blit(
             timer1, (550, 20)
         )
+    else:
+        button_play.reset()
+        button_exit.reset()
 
-    ball.reset()
+
 
     clock.tick(FPS)
     display.update()
