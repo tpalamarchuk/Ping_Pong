@@ -79,7 +79,7 @@ background = transform.scale(
 mixer.init()
 mixer.music.load('fon_music.ogg')
 mixer.music.play()
-mixer.music.set_volume(0.008)
+mixer.music.set_volume(0.08)
 cick = mixer.Sound('ball_sound.ogg')
 
 font.init()
@@ -177,14 +177,12 @@ while game:
             restart_pos_ball()
 
         if score_p1 == 3:
-            t.sleep(1)
             window.blit(
-                player2win, (365, 50)
+                player1win, (365, 50)
             )
             finish = False
 
         if score_p2 == 3:
-            t.sleep(1)
             window.blit(
                 player2win, (365, 50)
             )
@@ -193,7 +191,7 @@ while game:
         if Timer_s >= 60:
             if score_p1 > score_p2:
                 window.blit(
-                    player2win, (365, 50)
+                    player1win, (365, 50)
                 )
                 finish = False
             elif score_p1 < score_p2:
